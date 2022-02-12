@@ -6,7 +6,7 @@ global.client = new Discord.Client(
 const prefix = "!";
 
 //connect to DioAnubiBot
-client.login("ODMxMTAwNTY2OTE4NzkxMTkw.YHQUuA.RpMlbM7hA2PiyGSteeO4lvk3Pj8")
+client.login(process.env.token)
 
 //show in the console if the bot is online
 client.on("ready" , () => {
