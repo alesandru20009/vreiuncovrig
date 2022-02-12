@@ -3,7 +3,7 @@ const Discord = require('discord.js');
 module.exports = {
     name: "help",
     execute(message, args) {
-        var embed = new Discord.MessageEmbed()
+        var Embed = new Discord.MessageEmbed()
         .setTitle(`${message.guild.name}'Commands`)
         .addField("!clear => clear a number of messages")
         .addField("!help => list of all commands")
@@ -13,6 +13,6 @@ module.exports = {
         .addField("!serverinfo => all server statistics")
         .setTimestamp()
 
-    message.channel.send({ embeds: [embed] })
+    message.channel.send({ embeds: [Embed] })
     }
 }
