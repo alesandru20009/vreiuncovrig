@@ -17,7 +17,7 @@ client.on("ready" , () => {
 
 client.on("ready", () => {
 
-    client.user.setActivity('!serverinfo | v1.0' , {type: "PLAYING"});
+    client.user.setActivity('!help | v1.0' , {type: "PLAYING"});
 })
 
 const fs = require("fs");
