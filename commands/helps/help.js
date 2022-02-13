@@ -1,18 +1,92 @@
-const Discord = require('discord.js');
+
+const {Client, Message, MessageEmbed, MessageActionRow, MessageSelectMenu} = require('discord.js');
 
 module.exports = {
     name: "help",
-    execute(message, args) {
-        var Embed = new Discord.MessageEmbed()
-        .setTitle(`${message.guild.name}'Commands`)
-        .addField("!clear => clear a number of messages")
-        .addField("!help => list of all commands")
-        .addField("!ban => ban a user in the server")
-        .addField("!kick => kick a user in the server")
-        .addField("!ping => calculate the ping of the bot")
-        .addField("!serverinfo => all server statistics")
-        .setTimestamp()
+    run: async(message, args, client) => {
+        const directories = [...new Set(client.commands.map(cmd => cmd.directories)),
+        ];
 
-    message.channel.send({ embeds: [Embed] })
-    }
-}
+        console.log(directories);
+
+        const formatString = (str) => 
+            `${str[0].toUpperCase()}${str.slice(1).toLowerCase()}`;
+
+
+        const categories = directories.map((dir) => {
+            const getCommands = client.commands.filter((cmd) => cmd.directories == dir
+            ).map(cmd => {
+                return {
+                    name: cmd.name || "there is no name",
+                    description: cmd.description || "there is no descriptiption for this command",
+
+                }
+            });
+        
+        return {
+
+            directory: formatString(dir),
+            commands: getCommands,
+        } 
+
+        });
+
+        const embed = new MessageEmbed().setDescription("Chose a category in the dropdown menu"
+        );
+
+        const components = (state) => [
+
+            new MessageActionRow().addComponents(
+                new MessageSelectMenu()
+                .setCustomId("help-menu")
+                .setPlaceholder("Please select a category")
+                .setDisabled(state)
+                .addOptions(
+                    categories.map((cmd) => {
+
+                        return{
+                            label: cmd.directory,
+                            value: cmd.directory.toLocaleLowerCase(),
+                            description: `Commands from ${cmd.directory} category`, 
+                        };
+                    })
+                )
+            ),
+        ];
+
+        const initialMessage = await message.channel.send({
+            embeds: [embed],
+            components: components(false),
+        });
+
+        const filter = (interaction) => interaction.user.id === message.author.id;
+
+        const collector = message.channel.createMessageComponentCollector({filter, componentType: 'SELECT_MENU', time: 5000, });
+
+         collector.on('collect', (interaction) => {
+             const [ directory ] = interaction.values;
+             const category = category.find(x => x.directory.toLocaleLowerCase() === directory);
+
+             const categoryEmbed = new MessageEmbed()
+             .setTitle(`${directory} commands`)
+             .setDescription("Here are the list of commands")
+             .addFields(
+                 category.commands.map((cmd) => {
+                     return {
+                         name: `\`${cmd.name}\``,
+                         value: cmd.description,
+                         inline: true,
+
+                     };
+                 })
+             )
+
+
+             interaction.update({ embeds: [categoryEmbed] });
+         });
+
+         collector.on('end', () => {
+             initialMessage.edit({components: components(true)});
+         });
+    },
+};
